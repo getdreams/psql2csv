@@ -146,6 +146,6 @@ fi
 if [ "$DRY_RUN" = true ]; then
   echo "$COMMAND"
 else
-  psql ${CONNECTION_STRING}--command="$COMMAND" ${PSQL_ARGS[@]}
+  psql ${CON_STRING}--command="$COMMAND" ${PSQL_ARGS[@]}
 fi
 
