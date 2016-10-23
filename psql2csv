@@ -24,6 +24,7 @@ function usage() {
   echo '  --timezone=TIMEZONE        set the timezone config before running the query'
   echo '  --search-path=SEARCH_PATH  set the search_path config before running the query'
   echo '  --dry-run                  print the COPY statement that would be run without actually running it'
+  echo '  --con-string               connection string passed as the first argument to psql (`sslmode=require` for example)'
   echo
   echo 'Example usage:'
   echo
@@ -63,6 +64,8 @@ do
     --no-header)     HEADER=false;                     shift;;
     --delimiter)     DELIMITER="$2";                   shift 2;;
     --delimiter=*)   DELIMITER="${1#*=}";              shift;;
+    --con-string)    CON_STRING="$2";                  shift 2;;
+    --con-string=*)  CON_STRING="${1#*=}";             shift;;
     --null)          NULL="$2";                        shift 2;;
     --null=*)        NULL="${1#*=}";                   shift;;
     --quote)         QUOTE="$2";      ESCAPE="$QUOTE"; shift 2;;
@@ -136,8 +139,13 @@ if ! [ -z "$TIMEZONE" ]; then
   COMMAND=$"SET timezone TO '$TIMEZONE';"$'\n'"$COMMAND"
 fi
 
+if [ ! -n "$CON_STRING" ]; then
+  CON_STRING="${CON_STRING} "
+fi
+
 if [ "$DRY_RUN" = true ]; then
   echo "$COMMAND"
 else
-  psql "sslmode=require" --command="$COMMAND" ${PSQL_ARGS[@]}
+  psql ${CONNECTION_STRING}--command="$COMMAND" ${PSQL_ARGS[@]}
 fi
+
